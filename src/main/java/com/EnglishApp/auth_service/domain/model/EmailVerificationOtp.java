@@ -2,9 +2,12 @@ package com.EnglishApp.auth_service.domain.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,26 +23,24 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "oauth_clients")
-public class OauthClient {
+@Table(name = "email_verification_otps")
+public class EmailVerificationOtp {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "client_id", nullable = false, length = 128, unique = true)
-    private String clientId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @Column(name = "client_secret_hash", nullable = false, length = 255)
-    private String clientSecretHash;
+    @Column(name = "otp_hash", nullable = false, length = 255)
+    private String otpHash;
 
-    @Column(name = "client_name", nullable = false, length = 128)
-    private String clientName;
+    @Column(name = "expires_at", nullable = false)
+    private LocalDateTime expiresAt;
 
-    @Column(nullable = false, length = 512)
-    private String scopes;
-
-    @Column(nullable = false)
-    private Byte status = 1;
+    @Column(name = "verified_at")
+    private LocalDateTime verifiedAt;
 
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     private LocalDateTime createdAt;

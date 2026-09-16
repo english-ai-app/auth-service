@@ -24,12 +24,17 @@ public class TokenService {
     private final OauthProperties oauthProperties;
 
     public AuthResponse createToken(Authentication authentication, HttpServletRequest request) {
-        Instant now = Instant.now();
-        Instant expiresAt = now.plusSeconds(oauthProperties.getDefaultAccessTokenTimeout());
         String username = authentication.getName();
         List<String> roles = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
+
+        return createTokenForUser(username, roles, request);
+    }
+
+    public AuthResponse createTokenForUser(String username, List<String> roles, HttpServletRequest request) {
+        Instant now = Instant.now();
+        Instant expiresAt = now.plusSeconds(oauthProperties.getDefaultAccessTokenTimeout());
 
         Map<String, Object> actionUser = Map.of(
                 "staffCode", username,

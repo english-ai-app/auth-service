@@ -45,7 +45,7 @@ public class User {
     private String avatarUrl;
 
     @Column(nullable = false)
-    private Integer status = 1;
+    private Byte status = 1;
 
     @Column(name = "email_verified_at")
     private LocalDateTime emailVerifiedAt;
