@@ -39,7 +39,7 @@ public class OauthClient {
     private String scopes;
 
     @Column(nullable = false)
-    private Byte status = 1;
+    private Byte status = (byte) 1;
 
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     private LocalDateTime createdAt;

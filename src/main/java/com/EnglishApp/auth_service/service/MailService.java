@@ -2,6 +2,7 @@ package com.EnglishApp.auth_service.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -13,6 +14,9 @@ import org.springframework.stereotype.Service;
 public class MailService {
     private final ObjectProvider<JavaMailSender> mailSenderProvider;
 
+    @Value("${spring.mail.properties.mail.from:${spring.mail.username:}}")
+    private String from;
+
     public void sendVerificationOtp(String email, String otp) {
         JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
 
@@ -22,6 +26,9 @@ public class MailService {
         }
 
         SimpleMailMessage message = new SimpleMailMessage();
+        if (from != null && !from.isBlank()) {
+            message.setFrom(from);
+        }
         message.setTo(email);
         message.setSubject("English App verification code");
         message.setText("Your verification code is " + otp + ". It expires in 5 minutes.");

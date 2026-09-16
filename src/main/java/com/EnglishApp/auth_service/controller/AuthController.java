@@ -1,5 +1,6 @@
 package com.EnglishApp.auth_service.controller;
 
+import com.EnglishApp.auth_service.domain.dto.ApiResponse;
 import com.EnglishApp.auth_service.domain.dto.AuthResponse;
 import com.EnglishApp.auth_service.domain.dto.LoginRequest;
 import com.EnglishApp.auth_service.domain.dto.RegisterRequest;
@@ -39,25 +40,25 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public RegisterResponse register(@Valid @RequestBody RegisterRequest request) {
-        return authService.register(request);
+    public ApiResponse<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
+        return ApiResponse.success("Register successfully. Please verify email.", authService.register(request));
     }
 
     @PostMapping("/verify-email")
-    public AuthResponse verifyEmail(
+    public ApiResponse<AuthResponse> verifyEmail(
             @Valid @RequestBody VerifyEmailRequest request,
             HttpServletRequest httpRequest
     ) {
-        return authService.verifyEmail(request, httpRequest);
+        return ApiResponse.success("Email verified successfully", authService.verifyEmail(request, httpRequest));
     }
 
     @PostMapping("/resend-otp")
-    public RegisterResponse resendOtp(@Valid @RequestBody ResendOtpRequest request) {
-        return authService.resendOtp(request);
+    public ApiResponse<RegisterResponse> resendOtp(@Valid @RequestBody ResendOtpRequest request) {
+        return ApiResponse.success("OTP resent successfully", authService.resendOtp(request));
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest) {
+    public ApiResponse<AuthResponse> login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.username(), request.password())
@@ -65,7 +66,7 @@ public class AuthController {
             authService.ensureEmailVerified(request.username());
             loginAttemptService.loginSucceeded(request.username());
             log.info("login_success username={} ip={}", request.username(), clientIp(httpRequest));
-            return tokenService.createToken(authentication, httpRequest);
+            return ApiResponse.success("Login successfully", tokenService.createToken(authentication, httpRequest));
         } catch (BadCredentialsException ex) {
             loginAttemptService.loginFailed(request.username());
             log.warn("login_failed username={} ip={} reason=bad_credentials", request.username(), clientIp(httpRequest));
