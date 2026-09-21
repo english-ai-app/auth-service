@@ -45,10 +45,7 @@ public class AuthController {
     }
 
     @PostMapping("/verify-email")
-    public ApiResponse<AuthResponse> verifyEmail(
-            @Valid @RequestBody VerifyEmailRequest request,
-            HttpServletRequest httpRequest
-    ) {
+    public ApiResponse<AuthResponse> verifyEmail(@Valid @RequestBody VerifyEmailRequest request, HttpServletRequest httpRequest) {
         return ApiResponse.success("Email verified successfully", authService.verifyEmail(request, httpRequest));
     }
 
