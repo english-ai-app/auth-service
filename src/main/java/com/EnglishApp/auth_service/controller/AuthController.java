@@ -83,6 +83,12 @@ public class AuthController {
         throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "Refresh token flow will be added after user persistence is ready");
     }
 
+    @PostMapping("/logout")
+    public ApiResponse<Void> logout(Authentication authentication) {
+        log.info("logout_success username={}", authentication.getName());
+        return ApiResponse.success("Logout successfully", null);
+    }
+
     private String clientIp(HttpServletRequest request) {
         String forwardedFor = request.getHeader("X-Forwarded-For");
         if (forwardedFor != null && !forwardedFor.isBlank()) {

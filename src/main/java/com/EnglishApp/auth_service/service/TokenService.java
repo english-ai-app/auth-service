@@ -3,6 +3,8 @@ package com.EnglishApp.auth_service.service;
 import com.EnglishApp.auth_service.common.Constants;
 import com.EnglishApp.auth_service.configuration.OauthProperties;
 import com.EnglishApp.auth_service.domain.dto.AuthResponse;
+import com.EnglishApp.auth_service.domain.model.User;
+import com.EnglishApp.auth_service.repo.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -22,6 +24,7 @@ import java.util.UUID;
 public class TokenService {
     private final JwtEncoder jwtEncoder;
     private final OauthProperties oauthProperties;
+    private final UserRepository userRepository;
 
     public AuthResponse createToken(Authentication authentication, HttpServletRequest request) {
         String username = authentication.getName();
@@ -33,6 +36,8 @@ public class TokenService {
     }
 
     public AuthResponse createTokenForUser(String username, List<String> roles, HttpServletRequest request) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
         Instant now = Instant.now();
         Instant expiresAt = now.plusSeconds(oauthProperties.getDefaultAccessTokenTimeout());
 
@@ -48,6 +53,7 @@ public class TokenService {
                 .issuedAt(now)
                 .expiresAt(expiresAt)
                 .subject(username)
+                .claim("userId", user.getId())
                 .claim("scope", String.join(" ", roles))
                 .claim("roles", roles)
                 .claim(Constants.ACTION_USER, actionUser)
@@ -55,7 +61,7 @@ public class TokenService {
                 .build();
 
         String accessToken = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
-        return new AuthResponse(accessToken, "Bearer", oauthProperties.getDefaultAccessTokenTimeout(), username, roles);
+        return new AuthResponse(accessToken, "Bearer", oauthProperties.getDefaultAccessTokenTimeout(), username, user.getId(), roles);
     }
 
     private String clientIp(HttpServletRequest request) {
